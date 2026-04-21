@@ -34,14 +34,13 @@ const animateClick = (id: string) => {
     }, 220);
 };
 
-// Centralized smooth-scroll helper with sticky header compensation.
+// Smooth scroll via scroll-margin-top (see assets/css/main.css); avoids layout reads/reflow.
 const scrollToSection = (id: string, clickId: string) => {
     animateClick(clickId);
     const target = document.getElementById(id);
     if (!target) return;
 
-    const y = target.getBoundingClientRect().top + window.scrollY - 88;
-    window.scrollTo({ top: y, behavior: "smooth" });
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
     focusSectionId.value = id;
     window.setTimeout(() => {
         if (focusSectionId.value === id) focusSectionId.value = null;
@@ -103,7 +102,7 @@ onBeforeUnmount(() => {
                 <button type="button" class="click-pop flex items-center gap-2"
                     :class="{ 'is-clicked': pressedItem === 'brand-top' }" @click="scrollToTop">
                     <div class="text-primary">
-                        <span class="material-symbols-outlined text-3xl">account_tree</span>
+                        <MsIcon name="account_tree" class="inline-block text-3xl" />
                     </div>
                     <span class="text-lg font-bold tracking-tight sm:text-xl">{{ t.brand }}</span>
                 </button>
@@ -166,7 +165,8 @@ onBeforeUnmount(() => {
                                 class="click-pop flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-base font-bold text-white transition-all hover:bg-primary/90 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                                 :class="{ 'is-clicked': pressedItem === 'hero-primary' }"
                                 @click="scrollToSection('waitlist', 'hero-primary')">
-                                {{ t.cta }} <span class="material-symbols-outlined">arrow_forward</span>
+                                {{ t.cta }}
+                                <MsIcon name="arrow_forward" class="inline-block text-[1.25em] leading-none" />
                             </button>
                             <button
                                 class="click-pop w-full rounded-lg bg-slate-200 px-6 py-3 text-base font-bold text-slate-900 transition-all hover:bg-slate-300 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
@@ -188,10 +188,14 @@ onBeforeUnmount(() => {
                             <div class="flow-caption flow-caption--center">Transform and validate</div>
                             <div class="flow-caption flow-caption--right">Google Sheets export</div>
                             <div class="sources">
-                                <div class="node"><span class="material-symbols-outlined text-primary">api</span></div>
-                                <div class="node"><span class="material-symbols-outlined text-primary">webhook</span>
+                                <div class="node">
+                                    <MsIcon name="api" class="inline-block text-2xl text-primary" />
                                 </div>
-                                <div class="node"><span class="material-symbols-outlined text-primary">payments</span>
+                                <div class="node">
+                                    <MsIcon name="webhook" class="inline-block text-2xl text-primary" />
+                                </div>
+                                <div class="node">
+                                    <MsIcon name="payments" class="inline-block text-2xl text-primary" />
                                 </div>
                             </div>
 
@@ -205,15 +209,18 @@ onBeforeUnmount(() => {
 
                             <div class="processor">
                                 <div class="processing-tag">{{ t.processing }}</div>
-                                <span class="material-symbols-outlined text-4xl text-primary">account_tree</span>
+                                <MsIcon name="account_tree" class="inline-block text-4xl text-primary" />
                             </div>
 
                             <div class="destinations">
-                                <div class="node"><span class="material-symbols-outlined text-green-400">grid_on</span>
+                                <div class="node">
+                                    <MsIcon name="grid_on" class="inline-block text-2xl text-green-400" />
                                 </div>
-                                <div class="node"><span class="material-symbols-outlined text-blue-400">storage</span>
+                                <div class="node">
+                                    <MsIcon name="storage" class="inline-block text-2xl text-blue-400" />
                                 </div>
-                                <div class="node"><span class="material-symbols-outlined text-orange-400">cloud</span>
+                                <div class="node">
+                                    <MsIcon name="cloud" class="inline-block text-2xl text-orange-400" />
                                 </div>
                             </div>
                         </div>
@@ -232,7 +239,7 @@ onBeforeUnmount(() => {
                     <div class="grid gap-8 md:grid-cols-3">
                         <div v-for="point in painPoints" :key="point.icon"
                             class="rounded-xl border border-slate-200 bg-white p-8 dark:border-slate-700 dark:bg-slate-800">
-                            <span class="material-symbols-outlined mb-4 text-red-500">{{ point.icon }}</span>
+                            <MsIcon :name="point.icon" class="mb-4 inline-block text-3xl text-red-500" />
                             <h3 class="mb-2 text-xl font-bold">{{ currentLocale === "en" ? point.enTitle : point.ptTitle
                             }}</h3>
                             <p class="text-sm text-slate-600 dark:text-slate-400">{{ currentLocale === "en" ?
@@ -254,7 +261,7 @@ onBeforeUnmount(() => {
                             class="group flex cursor-pointer flex-col items-center gap-4 rounded-xl border border-slate-200 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary dark:border-slate-800">
                             <div
                                 class="flex size-16 items-center justify-center rounded-xl bg-slate-100 group-hover:bg-primary/10 dark:bg-slate-800">
-                                <span class="material-symbols-outlined text-3xl text-primary">{{ source.icon }}</span>
+                                <MsIcon :name="source.icon" class="inline-block text-3xl text-primary" />
                             </div>
                             <div class="text-center">
                                 <p class="font-bold">{{ source.title }}</p>
@@ -278,7 +285,7 @@ onBeforeUnmount(() => {
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-4">
                         <div v-for="dest in destinations" :key="dest.icon"
                             class="flex flex-col items-center gap-4 rounded-xl border border-slate-700 bg-slate-800 p-6 transition-all duration-300 hover:-translate-y-1">
-                            <span class="material-symbols-outlined text-4xl" :class="dest.color">{{ dest.icon }}</span>
+                            <MsIcon :name="dest.icon" class="inline-block text-4xl" :class="dest.color" />
                             <p class="font-bold">{{ dest.title }}</p>
                             <p class="text-xs font-semibold uppercase tracking-wide" :class="dest.statusClass">{{
                                 dest.status }}</p>
@@ -308,9 +315,10 @@ onBeforeUnmount(() => {
                                 class="w-full flex-1 rounded-2xl border border-slate-200 bg-slate-100 p-6 dark:border-slate-700 dark:bg-slate-800">
                                 <div
                                     class="flex h-48 items-center justify-center overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-900">
-                                    <span
-                                        class="material-symbols-outlined text-6xl text-slate-400 dark:text-slate-600">{{
-                                            step.icon }}</span>
+                                    <MsIcon
+                                        :name="step.icon"
+                                        class="inline-block text-6xl text-slate-400 dark:text-slate-600"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -321,7 +329,7 @@ onBeforeUnmount(() => {
             <section class="bg-primary px-4 py-14 text-white sm:px-6 sm:py-24">
                 <div class="mx-auto grid max-w-7xl gap-8 sm:gap-12 md:grid-cols-2 lg:grid-cols-3">
                     <div v-for="feature in featureBlocks" :key="feature[1]" class="flex flex-col gap-4">
-                        <span class="material-symbols-outlined text-3xl opacity-80">{{ feature[0] }}</span>
+                        <MsIcon :name="feature[0]" class="inline-block text-3xl opacity-80" />
                         <h4 class="text-xl font-bold">{{ feature[1] }}</h4>
                         <p class="text-white/80">{{ feature[2] }}</p>
                     </div>
@@ -334,7 +342,7 @@ onBeforeUnmount(() => {
                     <div class="grid gap-4 sm:gap-6 md:grid-cols-5">
                         <div v-for="useCase in useCases" :key="useCase.label"
                             class="rounded-xl border border-slate-200 p-6 text-center dark:border-slate-800">
-                            <span class="material-symbols-outlined mb-3 text-3xl text-primary">{{ useCase.icon }}</span>
+                            <MsIcon :name="useCase.icon" class="mb-3 inline-block text-3xl text-primary" />
                             <p class="font-bold text-slate-900 dark:text-white">{{ useCase.label }}</p>
                         </div>
                     </div>
@@ -347,7 +355,7 @@ onBeforeUnmount(() => {
         <footer class="border-t border-slate-200 px-4 py-10 dark:border-slate-800 sm:px-6 sm:py-12">
             <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 md:flex-row">
                 <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">account_tree</span>
+                    <MsIcon name="account_tree" class="inline-block text-2xl text-primary" />
                     <span class="text-lg font-bold tracking-tight">{{ t.brand }}</span>
                 </div>
                 <p class="text-xs text-slate-500">{{ t.footer }}</p>

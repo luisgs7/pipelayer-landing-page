@@ -1,3 +1,4 @@
+@import "@fontsource-variable/inter/wght.css";
 @import "tailwindcss";
 
 @plugin "@tailwindcss/forms";
@@ -7,13 +8,21 @@
   --color-primary: #2b7cee;
   --color-background-light: #f6f7f8;
   --color-background-dark: #101822;
-  --font-display: "Inter", sans-serif;
+  --font-display: "Inter Variable", "Inter", system-ui, sans-serif;
   --radius: 0.25rem;
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
   --radius-full: 9999px;
 }
 
-body {
-  font-family: "Inter", sans-serif;
+@layer base {
+  html {
+    font-family: "Inter Variable", "Inter", system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  section[id],
+  #waitlist {
+    scroll-margin-top: 5.5rem;
+  }
 }
