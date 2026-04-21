@@ -1,4 +1,4 @@
-@import "@fontsource-variable/inter/wght.css";
+@import "./inter-subset.css";
 @import "tailwindcss";
 
 @plugin "@tailwindcss/forms";
