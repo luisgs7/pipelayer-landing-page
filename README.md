@@ -1,46 +1,47 @@
-# Astro Starter Kit: Basics
+# Pipeline.dev — site (Nuxt)
 
-```sh
-npm create astro@latest -- --template basics
-```
+Site de marketing em [Nuxt 3](https://nuxt.com/) (Vue 3, Vite) com [Tailwind CSS v4](https://tailwindcss.com/).
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Requisitos
 
-## 🚀 Project Structure
+- [Node.js](https://nodejs.org/) **>= 22.12.0**
 
-Inside of your Astro project, you'll see the following folders and files:
+## Estrutura do projeto
 
 ```text
 /
+├── assets/
+│   └── css/
+│       └── main.css          # Tailwind + tema (@theme)
+├── components/
+│   ├── Home.vue              # Página principal (landing)
+│   └── home/                 # Secções e cópias partilhadas
+├── layouts/
+│   └── default.vue           # Shell HTML, meta e fontes (useHead)
+├── pages/
+│   └── index.vue             # Rota /
 ├── public/
 │   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
+├── app.vue
+├── nuxt.config.ts
 └── package.json
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+Ficheiros em `components/` são [auto-importados](https://nuxt.com/docs/guide/concepts/auto-imports). Estilos globais entram via `nuxt.config.ts` (`css: ['~/assets/css/main.css']`).
 
-## 🧞 Commands
+## Comandos
 
-All commands are run from the root of the project, from a terminal:
+Na raiz do repositório:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+| Comando           | Descrição |
+| ----------------- | --------- |
+| `npm install`     | Instala dependências e corre `nuxt prepare` (tipos) |
+| `npm run dev`     | Servidor de desenvolvimento (por defeito [http://localhost:3000](http://localhost:3000)) |
+| `npm run build`   | Build de produção (saída em `.output/`) |
+| `npm run preview` | Pré-visualização local do build |
+| `npm run generate`| Geração estática (pré-render), útil para hosting só de ficheiros |
 
-## 👀 Want to learn more?
+## Documentação
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- [Nuxt](https://nuxt.com/docs)
+- [Vue 3](https://vuejs.org/guide/introduction.html)
