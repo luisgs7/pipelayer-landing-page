@@ -1,13 +1,31 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import ExitIntentModal from "./home/ExitIntentModal.vue";
+import WaitlistSection from "./home/WaitlistSection.vue";
+import {
+    type Locale,
+    getDestinations,
+    getFeatureBlocks,
+    getSourceCards,
+    getSteps,
+    getUseCases,
+    messages,
+    painPoints,
+} from "./home/messages";
 
-type Locale = "en" | "ptBR";
 const currentLocale = ref<Locale>("en");
 const setLocale = (locale: Locale) => (currentLocale.value = locale);
 const pressedItem = ref<string | null>(null);
 const focusSectionId = ref<string | null>(null);
 const showExitPopup = ref(false);
 const EXIT_POPUP_COOLDOWN_MS = 30000;
+
+const t = computed(() => messages[currentLocale.value]);
+const sourceCards = computed(() => getSourceCards(currentLocale.value));
+const destinations = computed(() => getDestinations(currentLocale.value));
+const steps = computed(() => getSteps(currentLocale.value));
+const featureBlocks = computed(() => getFeatureBlocks(currentLocale.value));
+const useCases = computed(() => getUseCases(currentLocale.value));
 
 const animateClick = (id: string) => {
     pressedItem.value = id;
@@ -16,6 +34,7 @@ const animateClick = (id: string) => {
     }, 220);
 };
 
+// Centralized smooth-scroll helper with sticky header compensation.
 const scrollToSection = (id: string, clickId: string) => {
     animateClick(clickId);
     const target = document.getElementById(id);
@@ -45,7 +64,9 @@ const handleExitSubmit = () => {
 };
 
 const onExitIntent = (event: MouseEvent) => {
-    const lastShownAt = Number(sessionStorage.getItem("exit-popup-last-shown-at") || "0");
+    const lastShownAt = Number(
+        sessionStorage.getItem("exit-popup-last-shown-at") || "0",
+    );
     const inCooldown = Date.now() - lastShownAt < EXIT_POPUP_COOLDOWN_MS;
     if (inCooldown || showExitPopup.value) return;
 
@@ -62,218 +83,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
     document.removeEventListener("mouseout", onExitIntent);
 });
-
-const messages = {
-    en: {
-        brand: "PipeLayer.dev",
-        nav: { features: "Features", sources: "Sources", how: "How it works" },
-        cta: "Get Stripe Early Access",
-        heroBadge: "Stripe-first private beta",
-        heroTitle:
-            "Sync Stripe data to Google Sheets in minutes.",
-        heroDesc:
-            "Go live with Stripe exports to Google Sheets in a true serverless, no-code, plug-and-play flow. No engineering sprint, no scripts, no maintenance. Shopify is our next prioritized integration via waitlist.",
-        secondaryCta: "See Stripe flow",
-        heroOffer: "Special launch condition: first 50 signups get priority onboarding + Shopify priority access.",
-        processing: "Processing",
-        problemTitle: "Stop building fragile payment export scripts",
-        problemDesc:
-            "Replace manual Stripe exports and brittle cron jobs with a serverless no-code sync experience that your team can launch in minutes.",
-        sourcesTitle: "Connect your source",
-        sourcesDesc: "Stripe is live now. Shopify is the next prioritized integration.",
-        destinationsTitle: "Export destinations",
-        destinationsDesc:
-            "Google Sheets is available now. PostgreSQL, Supabase, and Amazon S3 are coming soon.",
-        stepsTitle: "Simple 3-step Stripe setup",
-        builtForTitle: "Built for finance and growth teams",
-        waitlistTitle: "Join Stripe early access",
-        waitlistDesc:
-            "Use this form to request Stripe integration access, join the Shopify waitlist, or send your questions to our team.",
-        namePlaceholder: "Your name",
-        emailPlaceholder: "Work Email",
-        waitlistMessagePlaceholder: "Tell us if you want Stripe access, Shopify waitlist, or ask a question (optional)",
-        waitlistBtn: "Send",
-        exitTitle: "Wait, before you go...",
-        exitDesc: "Request Stripe integration access, join the Shopify waitlist, or ask us a question in seconds.",
-        exitNamePlaceholder: "Your name",
-        exitEmailPlaceholder: "Your work email",
-        exitBtn: "Get priority access",
-        exitDismiss: "Maybe later",
-        footer: "© 2026 Pipeline.dev. Stripe-first data sync for teams.",
-    },
-    ptBR: {
-        brand: "PipeLayer.dev",
-        nav: { features: "Recursos", sources: "Fontes", how: "Como funciona" },
-        cta: "Entrar no Early Access Stripe",
-        heroBadge: "Beta privado focado em Stripe",
-        heroTitle:
-            "Sincronize dados da Stripe para o Google Sheets em minutos.",
-        heroDesc:
-            "Entre em producao com exportacoes da Stripe para Google Sheets em um fluxo serverless, no-code e plug-and-play. Sem sprint de engenharia, sem scripts e sem manutencao. Shopify e nossa proxima integracao prioritaria via lista de espera.",
-        secondaryCta: "Ver fluxo Stripe",
-        heroOffer: "Condicao especial de lancamento: os primeiros 50 ganham onboarding prioritario + prioridade no acesso Shopify.",
-        processing: "Processando",
-        problemTitle: "Pare de manter scripts frageis de exportacao de pagamentos",
-        problemDesc:
-            "Troque exportacoes manuais da Stripe e cron jobs instaveis por uma experiencia serverless no-code que seu time ativa em minutos.",
-        sourcesTitle: "Conecte sua fonte",
-        sourcesDesc: "Stripe disponivel agora. Shopify e a proxima integracao prioritaria.",
-        destinationsTitle: "Destinos de exportacao",
-        destinationsDesc:
-            "Google Sheets disponivel agora. PostgreSQL, Supabase e Amazon S3 em breve.",
-        stepsTitle: "Configuracao Stripe em 3 passos",
-        builtForTitle: "Feito para times financeiros e de crescimento",
-        waitlistTitle: "Entre no early access da Stripe",
-        waitlistDesc:
-            "Use este formulario para solicitar acesso da integracao Stripe, entrar na lista de espera da Shopify ou enviar sua duvida para o nosso time.",
-        namePlaceholder: "Seu nome",
-        emailPlaceholder: "E-mail de trabalho",
-        waitlistMessagePlaceholder: "Diga se voce quer acesso Stripe, lista Shopify ou tirar uma duvida (opcional)",
-        waitlistBtn: "Enviar",
-        exitTitle: "Espere, antes de sair...",
-        exitDesc: "Solicite acesso da integracao Stripe, entre na lista da Shopify ou envie sua duvida em segundos.",
-        exitNamePlaceholder: "Seu nome",
-        exitEmailPlaceholder: "Seu e-mail de trabalho",
-        exitBtn: "Quero acesso prioritario",
-        exitDismiss: "Talvez depois",
-        footer: "© 2026 Pipeline.dev. Sincronizacao Stripe-first para times.",
-    },
-};
-const t = computed(() => messages[currentLocale.value]);
-
-const sourceCards = computed(() =>
-    currentLocale.value === "en"
-        ? [
-            { icon: "payments", title: "Stripe", subtitle: "Payments data", status: "Available now", statusClass: "text-emerald-400" },
-            { icon: "storefront", title: "Shopify", subtitle: "E-commerce data", status: "Next priority waitlist", statusClass: "text-amber-400" },
-        ]
-        : [
-            { icon: "payments", title: "Stripe", subtitle: "Dados de pagamentos", status: "Disponivel agora", statusClass: "text-emerald-400" },
-            { icon: "storefront", title: "Shopify", subtitle: "Dados de e-commerce", status: "Proxima prioridade na lista", statusClass: "text-amber-400" },
-        ],
-);
-
-const destinations = computed(() =>
-    currentLocale.value === "en"
-        ? [
-            { icon: "grid_on", title: "Google Sheets", status: "Available now", color: "text-green-400", statusClass: "text-emerald-300" },
-            { icon: "storage", title: "PostgreSQL", status: "Coming soon", color: "text-blue-400", statusClass: "text-slate-400" },
-            { icon: "database", title: "Supabase", status: "Coming soon", color: "text-cyan-400", statusClass: "text-slate-400" },
-            { icon: "cloud_queue", title: "Amazon S3", status: "Coming soon", color: "text-orange-400", statusClass: "text-slate-400" },
-        ]
-        : [
-            { icon: "grid_on", title: "Google Sheets", status: "Disponivel agora", color: "text-green-400", statusClass: "text-emerald-300" },
-            { icon: "storage", title: "PostgreSQL", status: "Em breve", color: "text-blue-400", statusClass: "text-slate-400" },
-            { icon: "database", title: "Supabase", status: "Em breve", color: "text-cyan-400", statusClass: "text-slate-400" },
-            { icon: "cloud_queue", title: "Amazon S3", status: "Em breve", color: "text-orange-400", statusClass: "text-slate-400" },
-        ],
-);
-
-const painPoints = [
-    {
-        icon: "code_off",
-        enTitle: "No more manual Stripe exports",
-        ptTitle: "Sem exportacao manual da Stripe",
-        enDesc:
-            "Automate payments, refunds, and payout exports without maintaining one-off scripts.",
-        ptDesc:
-            "Automatize exportacoes de pagamentos, reembolsos e repasses sem manter scripts avulsos.",
-    },
-    {
-        icon: "running_with_errors",
-        enTitle: "Business-ready sync reliability",
-        ptTitle: "Sincronizacao confiavel para o negocio",
-        enDesc:
-            "Run recurring Stripe exports with retries and visibility your ops team can trust.",
-        ptDesc:
-            "Rode exportacoes recorrentes da Stripe com retentativas e visibilidade para operacoes.",
-    },
-    {
-        icon: "dns",
-        enTitle: "Sheets first, stack-ready next",
-        ptTitle: "Sheets agora, stack completa em seguida",
-        enDesc:
-            "Start in Google Sheets now and expand to PostgreSQL, Supabase, and S3 as they launch.",
-        ptDesc:
-            "Comece no Google Sheets agora e evolua para PostgreSQL, Supabase e S3 quando forem lancados.",
-    },
-];
-
-const steps = computed(() =>
-    currentLocale.value === "en"
-        ? [
-            {
-                title: "Connect Stripe",
-                desc: "Authenticate your Stripe account and choose the payment objects you want to export.",
-                icon: "link",
-            },
-            {
-                title: "Choose fields and schedule",
-                desc: "Select the columns, filters, and sync cadence for finance and growth reporting.",
-                icon: "settings_input_component",
-            },
-            {
-                title: "Export to Google Sheets",
-                desc: "Launch your Stripe-to-Sheets pipeline. PostgreSQL, Supabase, and S3 are next.",
-                icon: "sync",
-            },
-        ]
-        : [
-            {
-                title: "Conecte a Stripe",
-                desc: "Autentique sua conta Stripe e escolha os objetos de pagamento que deseja exportar.",
-                icon: "link",
-            },
-            {
-                title: "Escolha campos e frequencia",
-                desc: "Defina colunas, filtros e cadencia de sincronizacao para relatorios financeiros e de growth.",
-                icon: "settings_input_component",
-            },
-            {
-                title: "Exporte para Google Sheets",
-                desc: "Ative o pipeline Stripe para Sheets. PostgreSQL, Supabase e S3 sao os proximos destinos.",
-                icon: "sync",
-            },
-        ],
-);
-
-const featureBlocks = computed(() =>
-    currentLocale.value === "en"
-        ? [
-            ["payments", "Stripe-first, no-code setup", "Connect Stripe and launch in minutes with a plug-and-play, serverless experience."],
-            ["schedule", "Scheduled exports", "Automate reporting syncs for daily, weekly, or custom windows."],
-            ["verified_user", "Reliable delivery", "Retries and checks keep your Sheets exports consistent."],
-            ["storefront", "Shopify next priority", "Shopify is the next integration in priority waitlist order."],
-            ["database", "No maintenance overhead", "Serverless architecture means no infra to provision, patch, or monitor."],
-            ["history", "Audit visibility", "Track each export run with clear operational history."],
-        ]
-        : [
-            ["payments", "Modelo Stripe-first, no-code", "Conecte a Stripe e publique em minutos com uma experiencia plug-and-play e serverless."],
-            ["schedule", "Exportacoes agendadas", "Automatize sincronizacoes para relatorios diarios, semanais ou personalizados."],
-            ["verified_user", "Entrega confiavel", "Retentativas e validacoes mantem exportacoes para Sheets consistentes."],
-            ["storefront", "Shopify como proxima prioridade", "Shopify e a proxima integracao seguindo ordem de prioridade na lista."],
-            ["database", "Sem sobrecarga de manutencao", "Arquitetura serverless sem infraestrutura para provisionar, atualizar ou monitorar."],
-            ["history", "Visibilidade operacional", "Acompanhe cada execucao com historico claro para operacoes."],
-        ],
-);
-
-const useCases = computed(() =>
-    currentLocale.value === "en"
-        ? [
-            { icon: "receipt_long", label: "Finance reporting" },
-            { icon: "payments", label: "Revenue and refund tracking" },
-            { icon: "bar_chart", label: "Growth performance dashboards" },
-            { icon: "schedule", label: "Recurring ops exports" },
-            { icon: "file_download", label: "Stripe to Sheets workflows" },
-        ]
-        : [
-            { icon: "receipt_long", label: "Relatorios financeiros" },
-            { icon: "payments", label: "Acompanhamento de receita e reembolso" },
-            { icon: "bar_chart", label: "Dashboards de performance de growth" },
-            { icon: "schedule", label: "Exportacoes operacionais recorrentes" },
-            { icon: "file_download", label: "Fluxos Stripe para Sheets" },
-        ],
-);
 </script>
 
 <template>
@@ -291,59 +100,41 @@ const useCases = computed(() =>
         <header
             class="sticky top-0 z-50 border-b border-slate-200 bg-background-light/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
             <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-16 sm:px-6">
-                <button
-                    type="button"
-                    class="click-pop flex items-center gap-2"
-                    :class="{ 'is-clicked': pressedItem === 'brand-top' }"
-                    @click="scrollToTop"
-                >
+                <button type="button" class="click-pop flex items-center gap-2"
+                    :class="{ 'is-clicked': pressedItem === 'brand-top' }" @click="scrollToTop">
                     <div class="text-primary">
                         <span class="material-symbols-outlined text-3xl">account_tree</span>
                     </div>
                     <span class="text-lg font-bold tracking-tight sm:text-xl">{{ t.brand }}</span>
                 </button>
                 <nav class="hidden items-center gap-8 md:flex">
-                    <button
-                        type="button"
-                        class="click-pop text-sm font-medium transition-colors hover:text-primary"
+                    <button type="button" class="click-pop text-sm font-medium transition-colors hover:text-primary"
                         :class="{ 'is-clicked': pressedItem === 'nav-features' }"
-                        @click="scrollToSection('features', 'nav-features')"
-                    >{{
-                        t.nav.features }}</button>
-                    <button
-                        type="button"
-                        class="click-pop text-sm font-medium transition-colors hover:text-primary"
+                        @click="scrollToSection('features', 'nav-features')">{{
+                            t.nav.features }}</button>
+                    <button type="button" class="click-pop text-sm font-medium transition-colors hover:text-primary"
                         :class="{ 'is-clicked': pressedItem === 'nav-sources' }"
-                        @click="scrollToSection('sources', 'nav-sources')"
-                    >{{ t.nav.sources
+                        @click="scrollToSection('sources', 'nav-sources')">{{ t.nav.sources
                         }}</button>
-                    <button
-                        type="button"
-                        class="click-pop text-sm font-medium transition-colors hover:text-primary"
+                    <button type="button" class="click-pop text-sm font-medium transition-colors hover:text-primary"
                         :class="{ 'is-clicked': pressedItem === 'nav-how' }"
-                        @click="scrollToSection('how-it-works', 'nav-how')"
-                    >{{
-                        t.nav.how }}</button>
+                        @click="scrollToSection('how-it-works', 'nav-how')">{{
+                            t.nav.how }}</button>
                 </nav>
                 <div class="flex items-center gap-2 sm:gap-4">
                     <div class="hidden items-center text-sm font-medium sm:flex">
-                        <button
-                            class="click-pop hover:text-primary transition-colors"
+                        <button class="click-pop hover:text-primary transition-colors"
                             :class="[currentLocale === 'en' ? 'text-primary' : '', pressedItem === 'lang-en' ? 'is-clicked' : '']"
-                            @click="setLocale('en'); animateClick('lang-en')"
-                        >EN</button>
+                            @click="setLocale('en'); animateClick('lang-en')">EN</button>
                         <span class="mx-2 text-slate-400">|</span>
-                        <button
-                            class="click-pop hover:text-primary transition-colors"
+                        <button class="click-pop hover:text-primary transition-colors"
                             :class="[currentLocale === 'ptBR' ? 'text-primary' : '', pressedItem === 'lang-pt' ? 'is-clicked' : '']"
-                            @click="setLocale('ptBR'); animateClick('lang-pt')"
-                        >PT-BR</button>
+                            @click="setLocale('ptBR'); animateClick('lang-pt')">PT-BR</button>
                     </div>
                     <button
                         class="click-pop rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white transition-all hover:bg-primary/90 sm:px-5 sm:text-sm"
                         :class="{ 'is-clicked': pressedItem === 'cta-top' }"
-                        @click="scrollToSection('waitlist', 'cta-top')"
-                    >
+                        @click="scrollToSection('waitlist', 'cta-top')">
                         {{ t.cta }}
                     </button>
                 </div>
@@ -374,24 +165,20 @@ const useCases = computed(() =>
                             <button
                                 class="click-pop flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-base font-bold text-white transition-all hover:bg-primary/90 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                                 :class="{ 'is-clicked': pressedItem === 'hero-primary' }"
-                                @click="scrollToSection('waitlist', 'hero-primary')"
-                            >
+                                @click="scrollToSection('waitlist', 'hero-primary')">
                                 {{ t.cta }} <span class="material-symbols-outlined">arrow_forward</span>
                             </button>
                             <button
                                 class="click-pop w-full rounded-lg bg-slate-200 px-6 py-3 text-base font-bold text-slate-900 transition-all hover:bg-slate-300 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                                 :class="{ 'is-clicked': pressedItem === 'hero-secondary' }"
-                                @click="scrollToSection('how-it-works', 'hero-secondary')"
-                            >
+                                @click="scrollToSection('how-it-works', 'hero-secondary')">
                                 {{ t.secondaryCta }}
                             </button>
                         </div>
-                        <button
-                            type="button"
+                        <button type="button"
                             class="click-pop w-full max-w-xl rounded-xl border border-primary/30 bg-primary/10 p-4 text-left transition-all hover:border-primary/50"
                             :class="{ 'is-clicked': pressedItem === 'hero-offer' }"
-                            @click="scrollToSection('waitlist', 'hero-offer')"
-                        >
+                            @click="scrollToSection('waitlist', 'hero-offer')">
                             <p class="text-sm font-semibold text-primary sm:text-[15px]">{{ t.heroOffer }}</p>
                         </button>
                     </div>
@@ -402,8 +189,10 @@ const useCases = computed(() =>
                             <div class="flow-caption flow-caption--right">Google Sheets export</div>
                             <div class="sources">
                                 <div class="node"><span class="material-symbols-outlined text-primary">api</span></div>
-                                <div class="node"><span class="material-symbols-outlined text-primary">webhook</span></div>
-                                <div class="node"><span class="material-symbols-outlined text-primary">payments</span></div>
+                                <div class="node"><span class="material-symbols-outlined text-primary">webhook</span>
+                                </div>
+                                <div class="node"><span class="material-symbols-outlined text-primary">payments</span>
+                                </div>
                             </div>
 
                             <div class="conveyor">
@@ -420,18 +209,21 @@ const useCases = computed(() =>
                             </div>
 
                             <div class="destinations">
-                                <div class="node"><span class="material-symbols-outlined text-green-400">grid_on</span></div>
-                                <div class="node"><span class="material-symbols-outlined text-blue-400">storage</span></div>
-                                <div class="node"><span class="material-symbols-outlined text-orange-400">cloud</span></div>
+                                <div class="node"><span class="material-symbols-outlined text-green-400">grid_on</span>
+                                </div>
+                                <div class="node"><span class="material-symbols-outlined text-blue-400">storage</span>
+                                </div>
+                                <div class="node"><span class="material-symbols-outlined text-orange-400">cloud</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="border-y border-slate-200 bg-slate-50 px-4 py-14 dark:border-slate-800 dark:bg-slate-900/30 sm:px-6 sm:py-24"
-                :class="{ 'section-focus': focusSectionId === 'features' }"
-                id="features">
+            <section
+                class="border-y border-slate-200 bg-slate-50 px-4 py-14 dark:border-slate-800 dark:bg-slate-900/30 sm:px-6 sm:py-24"
+                :class="{ 'section-focus': focusSectionId === 'features' }" id="features">
                 <div class="mx-auto max-w-7xl">
                     <div class="mb-10 max-w-2xl sm:mb-16">
                         <h2 class="mb-3 text-2xl font-bold sm:mb-4 sm:text-3xl">{{ t.problemTitle }}</h2>
@@ -442,7 +234,7 @@ const useCases = computed(() =>
                             class="rounded-xl border border-slate-200 bg-white p-8 dark:border-slate-700 dark:bg-slate-800">
                             <span class="material-symbols-outlined mb-4 text-red-500">{{ point.icon }}</span>
                             <h3 class="mb-2 text-xl font-bold">{{ currentLocale === "en" ? point.enTitle : point.ptTitle
-                                }}</h3>
+                            }}</h3>
                             <p class="text-sm text-slate-600 dark:text-slate-400">{{ currentLocale === "en" ?
                                 point.enDesc : point.ptDesc }}</p>
                         </div>
@@ -450,7 +242,8 @@ const useCases = computed(() =>
                 </div>
             </section>
 
-            <section class="px-4 py-14 sm:px-6 sm:py-24" :class="{ 'section-focus': focusSectionId === 'sources' }" id="sources">
+            <section class="px-4 py-14 sm:px-6 sm:py-24" :class="{ 'section-focus': focusSectionId === 'sources' }"
+                id="sources">
                 <div class="mx-auto max-w-7xl">
                     <div class="mb-10 text-center sm:mb-16">
                         <h2 class="mb-3 text-3xl font-black sm:mb-4 sm:text-4xl">{{ t.sourcesTitle }}</h2>
@@ -466,7 +259,8 @@ const useCases = computed(() =>
                             <div class="text-center">
                                 <p class="font-bold">{{ source.title }}</p>
                                 <p class="text-xs text-slate-500">{{ source.subtitle }}</p>
-                                <p class="mt-1 text-[11px] font-semibold uppercase tracking-wide" :class="source.statusClass">
+                                <p class="mt-1 text-[11px] font-semibold uppercase tracking-wide"
+                                    :class="source.statusClass">
                                     {{ source.status }}
                                 </p>
                             </div>
@@ -486,13 +280,15 @@ const useCases = computed(() =>
                             class="flex flex-col items-center gap-4 rounded-xl border border-slate-700 bg-slate-800 p-6 transition-all duration-300 hover:-translate-y-1">
                             <span class="material-symbols-outlined text-4xl" :class="dest.color">{{ dest.icon }}</span>
                             <p class="font-bold">{{ dest.title }}</p>
-                            <p class="text-xs font-semibold uppercase tracking-wide" :class="dest.statusClass">{{ dest.status }}</p>
+                            <p class="text-xs font-semibold uppercase tracking-wide" :class="dest.statusClass">{{
+                                dest.status }}</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="px-4 py-14 sm:px-6 sm:py-24" :class="{ 'section-focus': focusSectionId === 'how-it-works' }" id="how-it-works">
+            <section class="px-4 py-14 sm:px-6 sm:py-24" :class="{ 'section-focus': focusSectionId === 'how-it-works' }"
+                id="how-it-works">
                 <div class="mx-auto max-w-5xl">
                     <div class="mb-10 text-center sm:mb-16">
                         <h2 class="mb-3 text-3xl font-black sm:mb-4 sm:text-4xl">{{ t.stepsTitle }}</h2>
@@ -545,32 +341,7 @@ const useCases = computed(() =>
                 </div>
             </section>
 
-            <section class="px-4 py-14 sm:px-6 sm:py-24" :class="{ 'section-focus': focusSectionId === 'waitlist' }" id="waitlist">
-                <div
-                    class="relative mx-auto max-w-5xl overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900 p-5 text-center dark:bg-slate-800 sm:rounded-[2rem] sm:p-12">
-                    <div class="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10"></div>
-                    <div class="relative z-10">
-                        <h2 class="mb-3 text-3xl font-black text-white sm:mb-4 sm:text-4xl">{{ t.waitlistTitle }}</h2>
-                        <p class="mx-auto mb-6 max-w-xl text-slate-400 sm:mb-8">{{ t.waitlistDesc }}</p>
-                        <form class="mx-auto flex max-w-2xl flex-col gap-4" @submit.prevent>
-                            <input
-                                class="w-full rounded-xl border border-slate-600 bg-slate-800/70 px-4 py-4 text-white transition-colors placeholder:text-slate-400 focus:border-primary focus:outline-none"
-                                :placeholder="t.namePlaceholder" type="text" />
-                            <input
-                                class="w-full rounded-xl border border-slate-600 bg-slate-800/70 px-4 py-4 text-white transition-colors placeholder:text-slate-400 focus:border-primary focus:outline-none"
-                                :placeholder="t.emailPlaceholder" type="email" />
-                            <textarea
-                                class="w-full rounded-xl border border-slate-600 bg-slate-800/70 px-4 py-4 text-white transition-colors placeholder:text-slate-400 focus:border-primary focus:outline-none"
-                                :placeholder="t.waitlistMessagePlaceholder"
-                                rows="4"
-                            ></textarea>
-                            <button
-                                class="w-full rounded-xl bg-primary px-6 py-3 text-base font-bold text-white transition-all hover:bg-primary/90 sm:text-xl"
-                                type="submit">{{ t.waitlistBtn }}</button>
-                        </form>
-                    </div>
-                </div>
-            </section>
+            <WaitlistSection :copy="t" :focused="focusSectionId === 'waitlist'" />
         </main>
 
         <footer class="border-t border-slate-200 px-4 py-10 dark:border-slate-800 sm:px-6 sm:py-12">
@@ -583,40 +354,7 @@ const useCases = computed(() =>
             </div>
         </footer>
 
-        <div
-            v-if="showExitPopup"
-            class="exit-overlay"
-            @click.self="closeExitPopup"
-        >
-            <div class="exit-modal">
-                <button type="button" class="exit-close" @click="closeExitPopup">×</button>
-                <h3 class="text-2xl font-black text-white">{{ t.exitTitle }}</h3>
-                <p class="mt-2 text-slate-300">{{ t.exitDesc }}</p>
-                <form class="mt-5 flex flex-col gap-3" @submit.prevent="handleExitSubmit">
-                    <input
-                        class="w-full rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-3 text-white placeholder:text-slate-400 focus:border-primary focus:outline-none"
-                        :placeholder="t.exitNamePlaceholder"
-                        type="text"
-                        required
-                    />
-                    <input
-                        class="w-full rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-3 text-white placeholder:text-slate-400 focus:border-primary focus:outline-none"
-                        :placeholder="t.exitEmailPlaceholder"
-                        type="email"
-                        required
-                    />
-                    <button
-                        type="submit"
-                        class="w-full rounded-lg bg-primary px-5 py-3 text-sm font-bold text-white transition-all hover:bg-primary/90"
-                    >
-                        {{ t.exitBtn }}
-                    </button>
-                </form>
-                <button type="button" class="mt-3 text-sm text-slate-400 hover:text-slate-200" @click="closeExitPopup">
-                    {{ t.exitDismiss }}
-                </button>
-            </div>
-        </div>
+        <ExitIntentModal :visible="showExitPopup" :copy="t" @close="closeExitPopup" @submit="handleExitSubmit" />
     </div>
 </template>
 
@@ -656,11 +394,9 @@ const useCases = computed(() =>
     border-radius: 16px;
     background:
         linear-gradient(135deg, rgba(30, 64, 175, 0.3), rgba(14, 165, 233, 0.14)),
-        repeating-linear-gradient(
-            0deg,
+        repeating-linear-gradient(0deg,
             transparent 0 11px,
-            rgba(125, 211, 252, 0.2) 11px 12px
-        );
+            rgba(125, 211, 252, 0.2) 11px 12px);
 }
 
 .infra-node--processor {
@@ -754,12 +490,10 @@ const useCases = computed(() =>
         linear-gradient(105deg, transparent 0%, rgba(96, 165, 250, 0.26) 18%, transparent 36%),
         linear-gradient(106deg, transparent 20%, rgba(59, 130, 246, 0.2) 36%, transparent 52%),
         linear-gradient(107deg, transparent 44%, rgba(14, 165, 233, 0.18) 58%, transparent 72%),
-        repeating-linear-gradient(
-            95deg,
+        repeating-linear-gradient(95deg,
             transparent 0 42px,
             rgba(125, 211, 252, 0.05) 42px 44px,
-            transparent 44px 84px
-        );
+            transparent 44px 84px);
     mix-blend-mode: screen;
     animation: backdropFlow 18s linear infinite;
 }
@@ -798,43 +532,6 @@ const useCases = computed(() =>
     animation: sectionFocusPulse 0.9s ease-out;
 }
 
-.exit-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 90;
-    background: rgba(2, 6, 23, 0.74);
-    backdrop-filter: blur(2px);
-    display: grid;
-    place-items: center;
-    padding: 1rem;
-    animation: overlayFade 0.18s ease-out;
-}
-
-.exit-modal {
-    position: relative;
-    width: 100%;
-    max-width: 460px;
-    border-radius: 1rem;
-    border: 1px solid rgba(59, 130, 246, 0.4);
-    background: linear-gradient(180deg, #0f172a 0%, #111c35 100%);
-    padding: 1.25rem;
-    box-shadow:
-        0 24px 60px rgba(2, 6, 23, 0.65),
-        0 0 36px rgba(59, 130, 246, 0.2);
-    animation: modalIn 0.24s ease-out;
-}
-
-.exit-close {
-    position: absolute;
-    right: 10px;
-    top: 8px;
-    border: none;
-    background: transparent;
-    color: #94a3b8;
-    font-size: 1.4rem;
-    line-height: 1;
-    cursor: pointer;
-}
 
 .pipeline-container {
     position: relative;
@@ -1123,9 +820,11 @@ const useCases = computed(() =>
     0% {
         transform: scale(1);
     }
+
     45% {
         transform: scale(0.92);
     }
+
     100% {
         transform: scale(1);
     }
@@ -1137,6 +836,7 @@ const useCases = computed(() =>
         transform: scale(0.9);
         opacity: 1;
     }
+
     100% {
         border-color: rgba(59, 130, 246, 0);
         transform: scale(1.05);
@@ -1148,9 +848,11 @@ const useCases = computed(() =>
     0% {
         box-shadow: inset 0 0 0 0 rgba(59, 130, 246, 0);
     }
+
     35% {
         box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.45);
     }
+
     100% {
         box-shadow: inset 0 0 0 0 rgba(59, 130, 246, 0);
     }
@@ -1160,6 +862,7 @@ const useCases = computed(() =>
     from {
         transform: translate3d(-2%, 0, 0);
     }
+
     to {
         transform: translate3d(2%, 0, 0);
     }
@@ -1169,6 +872,7 @@ const useCases = computed(() =>
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -1179,12 +883,15 @@ const useCases = computed(() =>
         transform: translateX(0);
         opacity: 0;
     }
+
     15% {
         opacity: 1;
     }
+
     85% {
         opacity: 1;
     }
+
     100% {
         transform: translateX(28vw);
         opacity: 0;
@@ -1196,35 +903,18 @@ const useCases = computed(() =>
         transform: translateX(0);
         opacity: 0;
     }
+
     15% {
         opacity: 1;
     }
+
     85% {
         opacity: 1;
     }
+
     100% {
         transform: translateX(27vw);
         opacity: 0;
-    }
-}
-
-@keyframes overlayFade {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes modalIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.97);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
     }
 }
 </style>
